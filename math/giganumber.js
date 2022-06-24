@@ -1,6 +1,6 @@
 
 function replaceAtIndex(string, index, character) {
-	string[i] = character
+	string[index] = character
 	return string
 }
 
