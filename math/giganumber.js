@@ -19,7 +19,7 @@ function compare(number1, number2) {
 		}
 		count++;
 	}
-	
+
 	return 0;
 }
 
@@ -53,7 +53,7 @@ class GuileGigaNumber {
 				number1 = padLeft(number1, number2.length);
 		}
 
-		
+
 
 		let carry = 0;
 		let result = "";
@@ -128,30 +128,70 @@ class GuileGigaNumber {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @param {string} dividendo 
+	 * @param {string} divisor 
+	 * @returns {string}
+	 */
 	static div(dividendo, divisor) {
-		var quociente = "0";
-		var resto = dividendo;
-		//implementar o resto e a comparação de quebra de loop
-		while (compare(resto, divisor) > -1) {
-			resto = GuileGigaNumber.sub(resto, divisor);
-			quociente = GuileGigaNumber.add(quociente, "1");
+		while (dividendo[0] == "0") {
+			dividendo = dividendo.substring(1, dividendo.length);
 		}
-		return [quociente, resto];
+
+		if(!dividendo) {
+			return [0, 0];
+		}
+
+		while (divisor[0] == "0") {
+			divisor = divisor.substring(1, divisor.length);
+		}
+
+		if (!divisor) {
+			throw new Error("Division by 0");
+		}
+
+		let quociente = "0";
+		let resto = dividendo;
+
+		if (compare(resto, divisor) == -1) {
+			return [quociente, resto]
+		}
+
+		let substr = "";
+		for (let sIndex = 0; sIndex < dividendo.length; sIndex++) {
+			substr += resto[sIndex];
+			if(compare(substr, divisor) == -1) {
+				quociente += "0";
+				continue;				
+			}
+
+			//Trocar por uma divisão mais assertiva com GuileGigaNumber
+			let substr_2 = `${substr % divisor}`;
+
+			//Trocar por uma divisão mais assertiva com GuileGigaNumber
+			quociente += `${(substr - substr_2) / divisor}`;
+			substr = substr_2;
+		}
+		
+		return [quociente, substr];
 	}
 
 	static toPrimeFactors(number) {
 		var factor = "2";
 		var n = number;
 		var factors = {};
+		let sIndex = 0
+
 		while (compare(n, factor) > -1) {
-			var tmp = GuileGigaNumber.div(n, factor);
-			if (compare(tmp[1], "0") > 0) {
+			const [quociente, resto] = GuileGigaNumber.div(n, factor);
+			if (compare(resto, "0") > 0) {
 				factor = GuileGigaNumber.add(factor, "1");
 			} else {
 				factors["_" + factor] = GuileGigaNumber.add((factors["_" + factor] || "0"), "1");
-				n = tmp[0];
+				n = quociente;
 			}
-			
+
 		}
 		return factors;
 	}
