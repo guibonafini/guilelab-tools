@@ -1,7 +1,6 @@
 
 function replaceAtIndex(string, index, character) {
-	string[index] = character
-	return string
+	return string.substr(0, index) + character + string.substr(index + character.length);
 }
 
 function compare(number1, number2) {
@@ -15,10 +14,12 @@ function compare(number1, number2) {
 
 	var count = 0;
 	while (count < number1.length) {
-		if (number1[count] != number2[count])
+		if (number1[count] != number2[count]) {
 			return (number1[count] > number2[count]) ? 1 : -1;
+		}
 		count++;
 	}
+	
 	return 0;
 }
 
@@ -52,6 +53,8 @@ class GuileGigaNumber {
 				number1 = padLeft(number1, number2.length);
 		}
 
+		
+
 		let carry = 0;
 		let result = "";
 		for (let x = number1.length - 1; x >= 0; x--) {
@@ -63,7 +66,6 @@ class GuileGigaNumber {
 				carry = 0;
 			result = tmp + "" + result;
 		}
-
 		return result;
 	}
 
@@ -149,6 +151,7 @@ class GuileGigaNumber {
 				factors["_" + factor] = GuileGigaNumber.add((factors["_" + factor] || "0"), "1");
 				n = tmp[0];
 			}
+			
 		}
 		return factors;
 	}
