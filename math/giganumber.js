@@ -24,8 +24,9 @@ function compare(number1, number2) {
 }
 
 function padLeft(nr, n, str) {
-	return Array(n - String(nr).length + 1).join(str || '0') + nr;
+	return (str || '0').repeat(n - String(nr).length) + nr;
 }
+
 
 function simple_multiply(factor1, factor2) {
 	var carry = 0;
@@ -43,28 +44,38 @@ function simple_multiply(factor1, factor2) {
 	return result;
 }
 
+function trimStart(str, char) {
+	while (str[0] == char) {
+		str = str.substring(1, str.length);
+	}
+	return str;
+}
+
 class GuileGigaNumber {
 
 	static add(number1, number2) {
+
+		number1 = trimStart(number1, "0");
+		number2 = trimStart(number2, "0");
+
 		if (number1.length != number2.length) {
-			if (number1.length > number2.length)
+			if (number1.length > number2.length) {
 				number2 = padLeft(number2, number1.length);
-			else
+			} else {
 				number1 = padLeft(number1, number2.length);
+			}
 		}
-
-
 
 		let carry = 0;
 		let result = "";
 		for (let x = number1.length - 1; x >= 0; x--) {
-			let tmp = number1[x] * 1 + number2[x] * 1 + carry;
+			let tmp = (number1[x] * 1) + (number2[x] * 1) + carry;
 			if (tmp > 9 && x > 0) {
 				carry = 1;
 				tmp -= 10;
 			} else
 				carry = 0;
-			result = tmp + "" + result;
+			result = ''.concat(tmp, result);
 		}
 		return result;
 	}
@@ -72,6 +83,7 @@ class GuileGigaNumber {
 	static multiply(factor1, factor2) {
 		let carret = "";
 		let result = "0";
+
 		for (let x = (factor2.length - 1); x >= 0; x--) {
 			let tmp = simple_multiply(factor1, factor2[x]);
 			if (x < (factor2.length - 1)) {
@@ -83,9 +95,21 @@ class GuileGigaNumber {
 		return result;
 	}
 
-	static pow(number, expoent) {
+	static pow(number, expoent, maxPower = "1000") {
 		if (expoent == "0")
 			return "1";
+
+		if (compare(expoent, maxPower) == 1) {
+			/**
+			 * Devido a propriedade de soma de expoentes decorrente do produto de dois termos,
+			 * é realizada quebra da operação a^b para em operações menores de potencia
+			 */
+			const [quociente, resto] = GuileGigaNumber.div(expoent, maxPower);
+			const newBase = GuileGigaNumber.pow(number, maxPower);
+			const expResto = resto ? GuileGigaNumber.pow(number, resto) : "1";
+			const expQuo = GuileGigaNumber.pow(newBase, quociente);
+			return GuileGigaNumber.multiply(expQuo, expResto);
+		}
 
 		var result = number;
 		expoent--;
@@ -98,6 +122,8 @@ class GuileGigaNumber {
 
 	static sub(number1, number2) {
 		var result = "";
+		number1 = trimStart(number1, "0");
+		number2 = trimStart(number2, "0");
 
 		//correction pad
 		if (number1.length != number2.length) {
@@ -123,7 +149,7 @@ class GuileGigaNumber {
 				tmp_1 = ((tmp_1 * 1) + 10) + "";
 			}
 
-			result = (tmp_1 - tmp_2) + "" + result;
+			result = ''.concat(tmp_1 - tmp_2, result);
 		}
 		return result;
 	}
@@ -135,21 +161,18 @@ class GuileGigaNumber {
 	 * @returns {string}
 	 */
 	static div(dividendo, divisor) {
-		while (dividendo[0] == "0") {
-			dividendo = dividendo.substring(1, dividendo.length);
-		}
 
-		if(!dividendo) {
+		dividendo = trimStart(dividendo, "0")
+		if (!dividendo) {
 			return [0, 0];
 		}
 
-		while (divisor[0] == "0") {
-			divisor = divisor.substring(1, divisor.length);
-		}
-
+		divisor = trimStart(divisor, "0")
 		if (!divisor) {
 			throw new Error("Division by 0");
 		}
+
+		const divisorTimes10 = GuileGigaNumber.multiply(divisor, "10");
 
 		let quociente = "0";
 		let resto = dividendo;
@@ -161,40 +184,72 @@ class GuileGigaNumber {
 		let substr = "";
 		for (let sIndex = 0; sIndex < dividendo.length; sIndex++) {
 			substr += resto[sIndex];
-			if(compare(substr, divisor) == -1) {
+			if (compare(substr, divisor) == -1) {
 				quociente += "0";
-				continue;				
+				continue;
 			}
+			/**
+			 * Se o valor do resto for menor do que 10x o valor do divisor,
+			 * significa que o calculo deverá ser realizado utilizando a forma básica
+			 * encontrando qual é o maior multiplo de divisor que é menor do que o resto
+			 */
 
-			//Trocar por uma divisão mais assertiva com GuileGigaNumber
-			let substr_2 = `${substr % divisor}`;
+			if (compare(substr, divisorTimes10) == -1) {
+				let times = "0";
+				let tmpOperand = 0;
+				while (true) {
+					const tmpTimes = GuileGigaNumber.add(times, divisor);
+					if (compare(substr, tmpTimes) < 0) {
+						break;
+					}
 
-			//Trocar por uma divisão mais assertiva com GuileGigaNumber
-			quociente += `${(substr - substr_2) / divisor}`;
-			substr = substr_2;
+					times = tmpTimes;
+					tmpOperand++;
+				}
+
+				// console.log(times, GuileGigaNumber.sub(times, divisor));
+				// substr = GuileGigaNumber.sub(substr, GuileGigaNumber.sub(times, divisor));
+				substr = GuileGigaNumber.sub(substr, times);
+				// substr = GuileGigaNumber.sub(substr, GuileGigaNumber.multiply(divisor, String(tmpOperand)));
+				quociente += String(tmpOperand)
+			}
 		}
-		
-		return [quociente, substr];
+		return [trimStart(quociente, "0"), trimStart(substr, "0")];
 	}
 
 	static toPrimeFactors(number) {
 		var factor = "2";
 		var n = number;
 		var factors = {};
-		let sIndex = 0
 
 		while (compare(n, factor) > -1) {
 			const [quociente, resto] = GuileGigaNumber.div(n, factor);
-			if (compare(resto, "0") > 0) {
+			if (compare((resto || "0"), "0") == 1) {
 				factor = GuileGigaNumber.add(factor, "1");
+				while (isOdd(factor) || isThreeDivisible(factor)) {
+					factor = GuileGigaNumber.add(factor, "1");
+				}
 			} else {
-				factors["_" + factor] = GuileGigaNumber.add((factors["_" + factor] || "0"), "1");
+				factors["_" + factor] = (factors["_" + factor] || 0) + 1;
 				n = quociente;
 			}
-
 		}
 		return factors;
 	}
+}
+
+function isOdd(number) {
+	return "02468".indexOf(number[number.length - 1]) > -1;
+}
+
+function isThreeDivisible(number) {
+	let x = number;
+
+	while (x.length > 1) {
+		x = number.split("").reduce((t, n) => t * 1 + n * 1, 0)
+	}
+
+	return (x % 3) == 0;
 }
 
 module.exports = GuileGigaNumber
