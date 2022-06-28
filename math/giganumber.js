@@ -53,6 +53,26 @@ function trimStart(str, char) {
 
 class GuileGigaNumber {
 
+	static compare(number1, number2) {
+		//correction pad
+		if (number1.length != number2.length) {
+			if (number1.length > number2.length)
+				number2 = padLeft(number2, number1.length)
+			else
+				number1 = padLeft(number1, number2.length);
+		}
+
+		var count = 0;
+		while (count < number1.length) {
+			if (number1[count] != number2[count]) {
+				return (number1[count] > number2[count]) ? 1 : -1;
+			}
+			count++;
+		}
+
+		return 0;
+	}
+
 	static add(number1, number2) {
 
 		number1 = trimStart(number1, "0");
@@ -235,6 +255,37 @@ class GuileGigaNumber {
 			}
 		}
 		return factors;
+	}
+
+	/**
+	 * 
+	 * @param {String} number number that will be calculated the root
+	 * @returns {[sqrt, isExact]} [sqrt, isExact]
+	 */
+	static pellSqrt(number) {
+		let counter = "0";
+		let nextEven = "0";
+		while (true) {
+			nextEven = GuileGigaNumber.nEven(counter);
+			if (GuileGigaNumber.compare(nextEven, number) == 1) {
+				break;
+			}
+			number = GuileGigaNumber.sub(number, nextEven);
+			counter = GuileGigaNumber.add(counter, "1");
+		}
+
+		return [counter, number == 0];
+	}
+
+	/**
+	 * 
+	 * @param {string} nIndex n-index even  
+	 */
+	static nEven(nIndex) {
+		return GuileGigaNumber.add(
+			GuileGigaNumber.multiply("2", nIndex),
+			"1"
+		)
 	}
 }
 
