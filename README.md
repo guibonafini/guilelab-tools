@@ -77,3 +77,35 @@ const muchMoreThanOneGoogol = GuileGigaNumber.pow("10", "1000")
 console.log('Num. de digitos:', muchMoreThanOneGoogol.length);
 console.log('Resultado %s...', muchMoreThanOneGoogol.substring(0, 100));
 
+```
+
+## Classe GuileArray
+
+```js
+const { GuileArray } = require("@guilelab/tools")
+
+
+//Retorna o primeiro item da array ou um valor default
+console.log(GuileArray.firstOrDefault([1, 2, 3], "s/v")) // 1
+console.log(GuileArray.firstOrDefault([], "s/v")) // 1
+
+//Retorna o ultimo item da array ou um valor default
+console.log(GuileArray.lastOrDefault([1, 2, 3], "s/v")) // 3
+console.log(GuileArray.lastOrDefault([], "s/v")) // 1
+
+//Quebra a array em subarrays de tamanho igual ou menor do que o informado
+console.log(GuileArray.chunk([1, 2, 3], 2)) // [[1, 2], [3]]
+
+
+//Injeta as funções dentro de Array
+GuileArray.injectToGlobalMethods();
+
+console.log([1 ,2 ,3].firstOrDefault("s/v")) // 1
+console.log([].firstOrDefault("s/v")) // "s/v"
+
+console.log([1 ,2 ,3].lastOrDefault("s/v")) // 3
+console.log([].lastOrDefault("s/v")) // "s/v"
+
+console.log([1 ,2 ,3].chunk(2)) // [[1, 2], [3]]
+
+```

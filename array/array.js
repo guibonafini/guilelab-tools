@@ -1,4 +1,5 @@
 
+/** @class */
 class GuileArray {
 
     /**
@@ -7,8 +8,8 @@ class GuileArray {
      * @param {any} defaultValue 
      * @returns {any}
      * @example
-     *   console.log([1 ,2 ,3].firstOrDefault("s/v")) // 1
-     *   console.log([].firstOrDefault("s/v")) // "s/v"
+     *   console.log(GuileArray.firstOrDefault([1, 2, 3], "s/v")) // 1
+     *   console.log(GuileArray.firstOrDefault([], "s/v")) // s/v
      */
     static firstOrDefault(arr, defaultValue = undefined) {
         return arr.length > 0 ? arr[0] : defaultValue;
@@ -20,8 +21,8 @@ class GuileArray {
      * @param {any} defaultValue 
      * @returns {any}
      * @example
-     *   console.log([1 ,2 ,3].firstOrDefault("s/v")) // 3
-     *   console.log([].lastOrDefault("s/v")) // "s/v"
+     *   console.log(GuileArray.lastOrDefault([1, 2, 3], "s/v")) // 3
+     *   console.log(GuileArray.lastOrDefault([], "s/v")) // s/v
      */
     static lastOrDefault(arr, defaultValue = undefined) {
         return arr.length > 0 ? arr[arr.length - 1] : defaultValue;
@@ -36,8 +37,8 @@ class GuileArray {
      * @example
      * ```
      *  const a = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-     *  const b = Array.chunk(a, 2);
-     *  console.log(b) // [[1,2],[3,4],[5,6],[7,8],[9]]
+     *  const b = GuileArray.chunk(a, 2);
+     *  console.log(b) // [[1, 2], [3, 4], [5, 6], [7, 8], [9]]
      * ```
      */
     static chunk(arr, chunkSize) {
