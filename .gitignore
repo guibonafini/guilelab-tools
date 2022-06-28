@@ -1,6 +1,6 @@
 test.js
 test/*
-prototypes.js
 date/date.js
 string/string.js
 object/object.js
+math/number.js
